@@ -22,5 +22,13 @@ method parse-xml(XML::Element $xml) {
             $!assertion = Auth::SAML2::Assertion.new;
             $!assertion.parse-xml($_);
         }
+
+        my $sig-prefix = .nsPrefix('http://www.w3.org/2000/09/xmldsig#');
+        $sig-prefix ~= ':' if $sig-prefix;
+        when .name eq $sig-prefix~'Signature' {
+            $!signed = True;
+            $!signature-valid = verify($_);
+            # XXX TODO: pull out signature cert
+        }
     }
 }
