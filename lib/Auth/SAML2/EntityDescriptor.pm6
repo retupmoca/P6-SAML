@@ -1,3 +1,5 @@
+use XML;
+
 class Auth::SAML2::EntityDescriptor;
 
 has $.entity-id;
@@ -71,11 +73,36 @@ method parse-xml($xml) {
 
         my @acs = $idp.elements(:TAG($prefix~'AssertionConsumerService'));
         for @acs {
-            %!single-sign-on-service{.attribs<Binding>.subst(/^urn\:oasis\:names\:tc\:SAML\:2\.0\:bindings\:/, '')} = .attribs<Location>;
+            %!assertion-consumer-service{.attribs<Binding>.subst(/^urn\:oasis\:names\:tc\:SAML\:2\.0\:bindings\:/, '')} = .attribs<Location>;
         }
     }
 }
 
 method Str {
+    my $xml = make-xml('md:EntityDescriptor', :entityID($.entity-id));
+    $xml.setNamespace('urn:oasis:names:tc:SAML:2.0:metadata', 'md');
 
+    my $org = make-xml('md:Organization',
+                       make-xml('md:OrganizationName', $.organization-name),
+                       make-xml('md:OrganizationDisplayName', $.organization-display-name),
+                       make-xml('md:OrganizationURL', $.organization-url));
+    $xml.append($org);
+
+    if %.single-sign-on-service {
+        my $idp = make-xml('md:IDPSSODescriptor');
+        for %.single-sign-on-service.kv -> $k, $v {
+            $idp.append(make-xml('md:SingleSignOnService', :Binding('urn:oasis:names:tc:SAML:2.0:bindings:'~$k), :Location($v)));
+        }
+        $xml.append($idp);
+    }
+
+    if %.assertion-consumer-service {
+        my $sp = make-xml('md:SPSSODescriptor');
+        for %.assertion-consumer-service.kv -> $k, $v {
+            $sp.append(make-xml('md:AssertionConsumerService', :Binding('urn:oasis:names:tc:SAML:2.0:bindings:'~$k), :Location($v)));
+        }
+        $xml.append($sp);
+    }
+
+    return ~$xml;
 }
