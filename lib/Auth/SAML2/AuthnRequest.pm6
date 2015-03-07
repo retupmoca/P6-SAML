@@ -11,6 +11,17 @@ has $.signature-valid;
 has $.signature-cert;
 has $.signature-key;
 
+method parse-xml($xml) {
+    my $prefix = $xml.nsPrefix('urn:oasis:names:tc:SAML:2.0:protocol');
+    $prefix ~= ':' if $prefix;
+
+    die "Not an AuthnRequest" unless $xml.name eq $prefix~'AuthnRequest';
+
+    my $sprefix = $xml.nsPrefix('urn:oasis:names:tc:SAML:2.0:assertion');
+    $sprefix ~= ':' if $sprefix;
+    $!issuer = $xml.elements($sprefix~'Issuer').contents.join;
+}
+
 method Str {
     my $id = UUID.new.Str;
     my $elem = make-xml('samlp:AuthnRequest', :ID($id), :Version('2.0'), :IssueInstant(DateTime.now.utc.Str),
