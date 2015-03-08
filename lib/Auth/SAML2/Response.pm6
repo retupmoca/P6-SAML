@@ -1,4 +1,6 @@
+use XML::Signature;
 use Auth::SAML2::Assertion;
+
 class Auth::SAML2::Response;
 
 has $.issuer;
