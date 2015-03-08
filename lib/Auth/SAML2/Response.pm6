@@ -6,6 +6,7 @@ has $.status;
 has $.assertion;
 
 has $.signed = False;
+has $.signature-valid;
 
 method parse-xml(XML::Element $xml) {
     $xml.ownerDocument.root.idattr = 'ID';
