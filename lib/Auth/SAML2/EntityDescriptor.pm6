@@ -48,9 +48,9 @@ method parse-xml($xml) {
         my @keys = $idp.elements(:TAG($prefix~'KeyDescriptor'));
         for @keys {
             if .attribs<use> eq 'signing' {
-                # XXX
                 $!x509-pem = .elements(:TAG($prefix~'KeyInfo'), :SINGLE)\
-                             .elements(:TAG($prefix~'KeyName'), :SINGLE).contents.join;
+                             .elements(:TAG($prefix~'X509Data'), :SINGLE)\
+                             .elements(:TAG($prefix~'X509Certificate'), :SINGLE).contents.join;
             }
         }
 
@@ -65,9 +65,9 @@ method parse-xml($xml) {
         my @keys = $sp.elements(:TAG($prefix~'KeyDescriptor'));
         for @keys {
             if .attribs<use> eq 'signing' {
-                # XXX
                 $!x509-pem = .elements(:TAG($prefix~'KeyInfo'), :SINGLE)\
-                             .elements(:TAG($prefix~'KeyName'), :SINGLE).contents.join;
+                             .elements(:TAG($prefix~'X509Data'), :SINGLE)\
+                             .elements(:TAG($prefix~'X509Certificate'), :SINGLE).contents.join;
             }
         }
 
@@ -88,11 +88,22 @@ method Str {
                        make-xml('md:OrganizationURL', $.organization-url));
     $xml.append($org);
 
+    my $contact = make-xml('md:ContactPerson',
+                           make-xml('md:SurName', %.organization-contact<SurName>),
+                           make-xml('md:EmailAddress', %.organization-contact<EmailAddress>));
+    $xml.append($contact);
+
+    my $key-info = make-xml('md:KeyDescriptor', :use('signing'),
+                            make-xml('md:KeyInfo',
+                                     make-xml('md:X509Data',
+                                              make-xml('md:X509Certificate', $.x509-pem))));
+
     if %.single-sign-on-service {
         my $idp = make-xml('md:IDPSSODescriptor');
         for %.single-sign-on-service.kv -> $k, $v {
             $idp.append(make-xml('md:SingleSignOnService', :Binding('urn:oasis:names:tc:SAML:2.0:bindings:'~$k), :Location($v)));
         }
+        $idp.append($key-info) if $.x509-pem;
         $xml.append($idp);
     }
 
@@ -101,6 +112,7 @@ method Str {
         for %.assertion-consumer-service.kv -> $k, $v {
             $sp.append(make-xml('md:AssertionConsumerService', :Binding('urn:oasis:names:tc:SAML:2.0:bindings:'~$k), :Location($v)));
         }
+        $sp.append($key-info) if $.x509-pem;
         $xml.append($sp);
     }
 
