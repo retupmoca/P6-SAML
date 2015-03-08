@@ -1,1 +1,1 @@
-class Auth::SAML2::ArtifactResolve.pm6;
+class Auth::SAML2::ArtifactResolve;
