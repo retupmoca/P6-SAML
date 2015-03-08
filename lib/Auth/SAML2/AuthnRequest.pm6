@@ -30,7 +30,7 @@ method Str {
     $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:protocol', 'samlp');
     $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:assertion', 'saml');
 
-    $xml = from-xml($elem.Str);
+    my $xml = from-xml($elem.Str);
 
     if $.signed && $.signature-cert && $.signature-key {
         sign($xml.root, :private-pem($.signature-key), :x509-pem($.signature-cert));
