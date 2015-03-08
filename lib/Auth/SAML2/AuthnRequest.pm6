@@ -26,7 +26,7 @@ method Str {
     my $id = UUID.new.Str;
     my $elem = make-xml('samlp:AuthnRequest', :ID($id), :Version('2.0'), :IssueInstant(DateTime.now.utc.Str),
                         make-xml('saml:Issuer', $.issuer),
-                        make-xml('samlp:NameIDPolicy', :AllowCreate('true'), :Format('urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified'));
+                        make-xml('samlp:NameIDPolicy', :AllowCreate('true'), :Format('urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified')));
     $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:protocol', 'samlp');
     $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:assertion', 'saml');
 
