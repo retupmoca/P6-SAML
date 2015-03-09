@@ -12,6 +12,7 @@ has %.attributes;
 has $.signed = False;
 has $.signature-valid = False;
 has $.signature-cert;
+has $.signature-key;
 
 method parse-xml(XML::Element $xml) {
     $xml.ownerDocument.root.idattr = 'ID';
@@ -50,4 +51,21 @@ method parse-xml(XML::Element $xml) {
             # XXX TODO: pull out signature cert
         }
     }
+}
+
+method Str {
+    my $id = UUID.new.Str;
+    my $elem = make-xml('saml:Assertion', :ID($id), :Version('2.0'), :IssueInstant(DateTime.now.utc.Str), make-xml('saml:Issuer', $.issuer));
+    $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:assertion', 'saml');
+
+    $elem.append(make-xml('saml:Subject', make-xml('saml:NameID', $.subject<NameID>)));
+    $elem.append(make-xml('saml:AuthnStatement', :AuthInstant(DateTime.now.utc.Str), :SessionIndex($id)));
+
+    my $xml = from-xml($elem.Str);
+
+    if $.signed && $.signature-cert && $.signature-key {
+        sign($xml.root, :private-pem($.signature-key), :x509-pem($.signature-cert));
+    }
+
+    return $xml.Str;
 }
