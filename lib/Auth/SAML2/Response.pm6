@@ -1,3 +1,4 @@
+use XML;
 use XML::Signature;
 use UUID;
 
