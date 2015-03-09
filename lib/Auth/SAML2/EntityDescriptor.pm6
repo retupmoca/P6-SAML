@@ -116,5 +116,5 @@ method Str {
         $xml.append($sp);
     }
 
-    return ~$xml;
+    return from-xml(~$xml).Str;
 }
