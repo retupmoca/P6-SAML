@@ -65,6 +65,16 @@ method XML {
     $elem.append(make-xml('saml:Subject', make-xml('saml:NameID', $.subject<NameID>)));
     $elem.append(make-xml('saml:AuthnStatement', :AuthInstant(DateTime.now.utc.Str), :SessionIndex($id)));
 
+    my $attrib-statement = make-xml('saml:AttributeStatement');
+    for %.attributes.kv -> $k, $v {
+        my $attrib = make-xml('saml:Attribute', :Name($k));
+        for $v.list -> $rv {
+            $attrib.append(make-xml('saml:AttributeValue', ~$rv));
+        }
+        $attrib-statement.append($attrib);
+    }
+    $elem.append($attrib-statement);
+
     my $xml = from-xml($elem.Str);
 
     if $.signed && $.signature-cert && $.signature-key {
