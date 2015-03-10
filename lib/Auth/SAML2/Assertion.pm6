@@ -78,7 +78,7 @@ method XML {
     my $xml = from-xml($elem.Str);
 
     if $.signed && $.signature-cert && $.signature-key {
-        sign($xml.root, :private-pem($.signature-key), :x509-pem($.signature-cert), :enveloped);
+        sign($xml.root, :private-pem($.signature-key), :x509-pem($.signature-cert), :enveloped($xml.root.elements(:TAG('saml:Subject'), :SINGLE)));
     }
 
     return $xml;
