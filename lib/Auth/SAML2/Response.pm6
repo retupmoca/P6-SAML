@@ -47,9 +47,10 @@ method parse-xml(XML::Element $xml) {
 
 method Str {
     my $id = UUID.new.Str;
-    my $elem = make-xml('samlp:Response', :ID($id), :Version('2.0'), :IssueInstant(DateTime.now.utc.Str), make-xml('saml:Issuer', $.issuer));
+    my $issuer = make-xml('saml:Issuer', $.issuer);
+    $issuer.setNamespace('urn:oasis:names:tc:SAML:2.0:assertion', 'saml');
+    my $elem = make-xml('samlp:Response', :ID($id), :Version('2.0'), :IssueInstant(DateTime.now.utc.Str), $issuer);
     $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:protocol', 'samlp');
-    $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:assertion', 'saml');
 
     $elem.append($.assertion.XML.root);
 
