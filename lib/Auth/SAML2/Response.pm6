@@ -36,7 +36,11 @@ method parse-xml(XML::Element $xml) {
         when .name eq $sig-prefix~'Signature' {
             $!signed = True;
             $!signature-valid = verify($_);
-            # XXX TODO: pull out signature cert
+            my $key-info = .elements(:TAG($sig-prefix ~ 'KeyInfo'), :SINGLE)\
+                           .elements(:TAG($sig-prefix ~ 'X509Data'), :SINGLE)\
+                           .elements(:TAG($sig-prefix ~ 'X509Certificate'), :SINGLE)\
+                           .contents.join;
+            $!signature-cert = $key-info;
         }
     }
 }

@@ -20,6 +20,20 @@ method parse-xml($xml) {
     my $sprefix = $xml.nsPrefix('urn:oasis:names:tc:SAML:2.0:assertion');
     $sprefix ~= ':' if $sprefix;
     $!issuer = $xml.elements(:TAG($sprefix~'Issuer'), :SINGLE).contents.join;
+
+    for $xml.elements {
+        my $sig-prefix = .nsPrefix('http://www.w3.org/2000/09/xmldsig#');
+        $sig-prefix ~= ':' if $sig-prefix;
+        when .name eq $sig-prefix~'Signature' {
+            $!signed = True;
+            $!signature-valid = verify($_);
+            my $key-info = .elements(:TAG($sig-prefix ~ 'KeyInfo'), :SINGLE)\
+                           .elements(:TAG($sig-prefix ~ 'X509Data'), :SINGLE)\
+                           .elements(:TAG($sig-prefix ~ 'X509Certificate'), :SINGLE)\
+                           .contents.join;
+            $!signature-cert = $key-info;
+        }
+    }
 }
 
 method Str {
