@@ -51,10 +51,9 @@ method Str {
     $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:protocol', 'samlp');
     $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:assertion', 'saml');
 
-    # this is...sloppy
-    my $str = $elem.Str;
-    $str ~~ s/\<\/samlp\:Response\>/{ $.assertion.Str ~ '</samlp:Response>' }/;
+    $elem.append($.assertion.XML.root);
 
+    my $str = $elem.Str;
     my $xml = from-xml($str);
 
     if $.signed && $.signature-cert && $.signature-key {

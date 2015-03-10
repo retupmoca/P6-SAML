@@ -57,7 +57,7 @@ method parse-xml(XML::Element $xml) {
     }
 }
 
-method Str {
+method XML {
     my $id = UUID.new.Str;
     my $elem = make-xml('saml:Assertion', :ID($id), :Version('2.0'), :IssueInstant(DateTime.now.utc.Str), make-xml('saml:Issuer', $.issuer));
     $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:assertion', 'saml');
@@ -71,5 +71,9 @@ method Str {
         sign($xml.root, :private-pem($.signature-key), :x509-pem($.signature-cert));
     }
 
-    return $xml.Str;
+    return $xml;
+}
+
+method Str {
+    return $.XML.Str;
 }
