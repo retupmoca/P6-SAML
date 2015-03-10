@@ -96,7 +96,7 @@ method Str {
     my $key-info = make-xml('md:KeyDescriptor', :use('signing'),
                             make-xml('md:KeyInfo',
                                      make-xml('md:X509Data',
-                                              make-xml('md:X509Certificate', $.x509-pem))));
+                                              make-xml('md:X509Certificate', $.x509-pem.subst(/\s+/, '', :g).subst(/\-\-\-\-\-[BEGIN|END]CERTIFICATE\-\-\-\-\-/, '', :g)))));
 
     if %.single-sign-on-service {
         my $idp = make-xml('md:IDPSSODescriptor');
