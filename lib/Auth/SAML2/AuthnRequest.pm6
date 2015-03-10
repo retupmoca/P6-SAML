@@ -19,7 +19,7 @@ method parse-xml($xml) {
 
     my $sprefix = $xml.nsPrefix('urn:oasis:names:tc:SAML:2.0:assertion');
     $sprefix ~= ':' if $sprefix;
-    $!issuer = $xml.elements($sprefix~'Issuer').contents.join;
+    $!issuer = $xml.elements(:TAG($sprefix~'Issuer'), :SINGLE).contents.join;
 }
 
 method Str {
