@@ -58,7 +58,7 @@ method parse-xml(XML::Element $xml) {
 }
 
 method XML {
-    my $id = UUID.new.Str;
+    my $id = '_' ~ UUID.new.Str;
     my $elem = make-xml('saml:Assertion', :ID($id), :Version('2.0'), :IssueInstant(DateTime.now.utc.Str), make-xml('saml:Issuer', $.issuer));
     $elem.setNamespace('urn:oasis:names:tc:SAML:2.0:assertion', 'saml');
 
